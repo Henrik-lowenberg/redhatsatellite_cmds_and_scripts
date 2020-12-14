@@ -1,0 +1,56 @@
+root@sat6# cat sat6_clean_tasks.ksh
+#!/bin/ksh
+
+datafile=/etc/vit/sat6_clean_tasks
+
+if [ ! -r ${datafile} ]; then
+        echo "Unable to read datafile ${datafile} "
+        exit 1
+fi
+
+grep -v "^#" ${datafile} | while read act tim rest
+do
+        #echo "act = ${act} , tim = ${tim} , rest = ${rest} "
+        comd="/sbin/foreman-rake foreman_tasks:cleanup TASK_SEARCH='label = \"${act}\"' AFTER='${tim}' "
+        echo " # "
+        echo " # $(date) Now running:"
+        echo " # ${comd}"
+        echo " # "
+        eval ${comd}
+done
+
+root@sat6# cat /etc/vit/sat6_clean_tasks
+#
+#
+#
+Actions::Katello::Repository::CapsuleGenerateAndSync 90d
+Actions::Katello::Repository::Sync 90d
+#
+
+
+##########################################
+
+database vacuum on qa
+
+du -sh /var/lib/pgsql/
+4.1GB
+
+
+katello-service stop
+service postgresql start
+su - postgres -c 'vacuumdb -f -d foreman'
+katello-service start
+
+root@sat6# du -sh /var/lib/pgsql/
+1.8G    /var/lib/pgsql/
+
+
+
+ca 5300 old tasks
+around 3 minutes vacuum time
+
+2000/min
+
+so production 295476 tasks should take around 2-3 hours to clean
+
+40/1 ratio

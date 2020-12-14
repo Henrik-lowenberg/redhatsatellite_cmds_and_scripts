@@ -1,0 +1,33 @@
+
+# Find hosts with Puppet fails
+hammer -c /etc/vit/hammer.yml report list --search 'last_report > "35 minutes ago" and (status.failed > 0 or status.failed_restarts > 0) and status.enabled = true'
+
+hammer --csv report list --search 'failed>4'
+
+hammer -c /etc/vit/hammer.yml report list --search 'failed>6'
+
+--------------------------------
+
+hammer -c /etc/vit/hammer.yml report list --search client.example.com
+
+
+hammer --output csv host list --search 'last_report < "60 minutes ago" and status.enabled = true'
+hammer host list --search 'last_report < "60 minutes ago" and status.enabled = true'
+
+hammer --csv report list --search 'reported > "35 minutes ago" and resource ~ nagios-nrpe-server' | tail -n +2 | cut -d, -f2 | uniq
+
+hammer -c /etc/vit/hammer.yml report list --search 'eventful=true and failed > 5'
+
+hammer -c /etc/vit/hammer.yml report list --search 'failed > 10 and reported = Today'
+
+debugging
+hammer -d command
+
+hammer -c /etc/vit/hammer.yml report list --search 'eventful = true and host ~ techl and reported = Today and failed > 1'
+
+hammer -c /etc/vit/hammer.yml report list --search 'eventful = true and host ~ techl and reported = Today and failed > 1' |awk  '{print $3}'|sort -u
+
+
+--------------------------------
+
+hammer -c /etc/vit/hammer.yml report list --search 'last_report < "4 months ago" and status.enabled = true'

@@ -1,0 +1,12 @@
+---
+:settings:
+  :user: satuser
+  :pass: changeme
+  :uri: https://sat6host.some.domain
+  :org: 1
+  :timeout: 300
+  :ignore:
+    - virt-who.*
+    - segotk.*
+    - segotv.*
+    - ip-.*

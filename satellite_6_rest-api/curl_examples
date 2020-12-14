@@ -1,0 +1,21 @@
+#!/bin/bash
+
+cat <<EOF 
+# Get host info
+curl -X GET -s -k -u apiuser:changeme https://sat6host.some.domain/api/v2/hosts/as-dte-p1.eu.techem.corp|json_reformat
+# get host subscriptions
+curl -X GET -s -k -u apiuser:changeme https://sat6host.some.domain/api/v2/hosts/techl0001.eu.techem.corp/subscriptions|json_reformat
+# search domain and display hosts info
+curl -X GET -s -k -u apiuser:changeme https://sat6host.some.domain/api/v2/hosts?search=domain=eu.techem.corp|json_reformat
+# search part of hostname and display host info
+curl -X GET -s -k -u apiuser:changeme https://sat6host.some.domain/api/v2/hosts?search=cfmetest0117|json_reformat
+
+#
+curl -H "Accept:application/json,version=2" \
+       -H "Content-Type:application/json" -X POST -u apiuser:changeme \
+       -k -d "{\"architecture\":{\"name\":\"i686\"}}" \
+       https://sat6host.some.domain/api/hosts/
+
+
+
+EOF

@@ -1,0 +1,1 @@
+hammer -c /etc/vit/hammer.yml activation-key copy --organization=ORG --name ak-lcs_6month_rhel6 --new-name ak-lcs_3month_rhel6

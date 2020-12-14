@@ -1,0 +1,16 @@
+# Troubleshooting 
+hammer ping
+katello-service status 
+
+
+
+# inclusion=true is include filter, inclusion=false is exlude filter
+# Create a content view filter with more than 20 entries
+hammer --username=admin --password=changeme content-view filter create --organization="ORG" --content-view='cv-epel_rhel7' --name='selected_epel_rhel7_packages' --inclusion=true --type=rpm
+
+hammer --username=admin --password=changeme content-view filter rule create --organization="ORG" --content-view='cv-epel_rhel7' --content-view-filter='selected_epel_rhel7_packages' --name pkgname
+# Repeat the above until you have all packages
+
+# list all packages in filter
+hammer --username=admin --password=changeme --csv content-view filter rule list --organization="ORG" --content-view='cv-epel_rhel7' --content-view-filter='selected_epel_rhel7_packages'
+

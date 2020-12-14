@@ -1,0 +1,21 @@
+sudo hammer -c /etc/vit/hammer.yml lifecycle-environment list --organization="ORG"
+---|------------------------|--------
+ID | NAME                   | PRIOR
+---|------------------------|--------
+1  | Library                |
+11 | lce-upstream_rhel7     | Library
+9  | lce-puppet_qa          | Library
+10 | lce-puppet_prod        | Library
+8  | lce-puppet_dev         | Library
+3  | lce-lcs_qa_rhel7       | Library
+6  | lce-lcs_qa_rhel6       | Library
+4  | lce-lcs_prod_rhel7     | Library
+7  | lce-lcs_prod_rhel6     | Library
+13 | lce-lcs_monthly_rhel7  | Library
+15 | lce-lcs_monthly_rhel6  | Library
+2  | lce-lcs_dev_rhel7      | Library
+5  | lce-lcs_dev_rhel6      | Library
+14 | lce-lcs_6month_rhel7   | Library
+16 | lce-lcs_6month_rhel6   | Library
+18 | lce_6month_rhel7_power | Library
+---|------------------------|--------

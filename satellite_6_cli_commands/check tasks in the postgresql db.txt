@@ -1,0 +1,5 @@
+su - postgres -c "psql -d foreman -c 'select label,count(label),state,result from foreman_tasks_tasks where state <> '\''stopped'\'' group by label,state,result ORDER BY label;'" 
+	label 					| count | state | result 
+-----------------------------------------------+-------+-----------+--------- 
+Actions::Candlepin::ListenOnCandlepinEvents 	| 1 | running 	| pending Actions::Insights::EmailPoller 	| 1 | scheduled | pending Actions::Katello::ContentView::Publish 		| 1 | paused 	| error Actions::Katello::EventQueue::Monitor 	| 1 | running | pending Actions::Katello::Host::GenerateApplicability 	| 3 | paused 	| error Actions::RemoteExecution::RunHostJob 	| 1 | running | pending 
+(6 rows)

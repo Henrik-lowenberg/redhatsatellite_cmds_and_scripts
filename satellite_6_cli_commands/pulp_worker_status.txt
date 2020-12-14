@@ -1,0 +1,25 @@
+
+
+
+# show status of pulp workers:
+celery -A pulp.server.async.app inspect active
+
+-> reserved_resource_worker-1@capsule1: OK
+    - empty -
+-> reserved_resource_worker-5@capsule1: OK
+    - empty -
+-> reserved_resource_worker-4@capsule1: OK
+    - empty -
+-> reserved_resource_worker-7@capsule1: OK
+    - empty -
+-> reserved_resource_worker-6@capsule1: OK
+    - empty -
+-> reserved_resource_worker-2@capsule1: OK
+    - empty -
+-> resource_manager@capsule1: OK
+    - empty -
+-> reserved_resource_worker-0@capsule1: OK
+    - empty -
+-> reserved_resource_worker-3@capsule1: OK
+    - empty -
+

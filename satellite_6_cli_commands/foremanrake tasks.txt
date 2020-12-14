@@ -1,0 +1,82 @@
+To export all tasks (this may take some time):
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH=''
+
+Export the tasks that did not complete (or are running):
+foreman-rake foreman_tasks:export_tasks
+
+Export tasks from last several days:
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH='' TASK_DAYS=1
+
+
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH='action label ~ CapsuleGenerateAndSync and result = pending'
+--------------------------------------
+
+Changing specific task to stopped with id:
+
+foreman-rake console
+ForemanTasks::Task.where(:id => "6ea749a9-5455-427d-a211-e6b4b28aaafc").map { |task| task.update_column(:state, "stopped") }
+
+--------------------------------------
+
+Stopping paused sync tasks
+
+systemctl stop foreman-tasks
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::System::GenerateApplicability", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+
+ForemanTasks::Task.where(:state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+
+# systemctl start foreman-tasks
+
+--------------------------------------
+
+#Stop running task of repository sync
+
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::Sync", :state => "running").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::Sync", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+--------------------------------------
+
+Stop contentview publish
+
+service foreman-tasks stop
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::ContentView::Publish", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+  
+systemctl start foreman-tasks  
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done
+
+------------------------------
+Stop old capsule sync tasks that prevents the capsules from appearing as synced
+
+service foreman-tasks stop
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "running").map { |task| task.update_column(:state, "stopped") }
+
+systemctl start foreman-tasks 
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done
+
+
+------------------------------
+Stop all running pending tasks:
+
+systemctl stop foreman-tasks
+foreman-rake console
+
+ForemanTasks::Task.where(:state => "running", :result => "pending").map { |task| task.update_column(:state, "stopped") }
+
+systemctl start foreman-tasks 
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done

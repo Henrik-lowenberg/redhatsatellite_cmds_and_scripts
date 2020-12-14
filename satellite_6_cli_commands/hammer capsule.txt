@@ -1,0 +1,204 @@
+##############
+NEW CAPSULE
+##############
+
+
+root@sat6host# capsule-certs-generate --capsule-fqdn "capsule3.some.domain" --certs-tar "~/capsule3.some.domain.tar"
+Installing             Done                                               [100%] [................................................................................]
+  Success!
+
+  To finish the installation, follow these steps:
+
+  If you do not have the capsule registered to the Satellite instance, then please do the following:
+
+  1. yum -y localinstall http://sat6host.some.domain/pub/katello-ca-consumer-latest.noarch.rpm
+  2. subscription-manager register --org "Default_Organization"
+
+  Once this is completed run the steps below to start the capsule installation:
+
+  1. Ensure that the satellite-capsule package is installed on the system.
+  2. Copy ~/capsule3.some.domain.tar to the system capsule1.some.domain
+  3. Run the following commands on the capsule (possibly with the customized
+     parameters, see satellite-installer --scenario capsule --help and
+     documentation for more info on setting up additional services):
+
+  satellite-installer --scenario capsule\
+                    --capsule-parent-fqdn                         "sat6host.some.domain"\
+                    --foreman-proxy-register-in-foreman           "true"\
+                    --foreman-proxy-foreman-base-url              "https://sat6host.some.domain"\
+                    --foreman-proxy-trusted-hosts                 "sat6host.some.domain"\
+                    --foreman-proxy-trusted-hosts                 "capsule3.some.domain"\
+                    --foreman-proxy-oauth-consumer-key            "somekey"\
+                    --foreman-proxy-oauth-consumer-secret         "somekey"\
+                    --capsule-pulp-oauth-secret                   "somekey"\
+                    --capsule-certs-tar                           "~/capsule3.some.domain.tar"
+  The full log is at /var/log/capsule-certs-generate.log
+
+
+
+root@capsule1# satellite-installer --scenario capsule\
+                    --capsule-parent-fqdn                         "sat6host.some.domain"\
+                    --foreman-proxy-register-in-foreman           "true"\
+                    --foreman-proxy-foreman-base-url              "https://sat6host.some.domain"\
+                    --foreman-proxy-trusted-hosts                 "sat6host.some.domain"\
+                    --foreman-proxy-oauth-consumer-key            "somekey"\
+                    --foreman-proxy-oauth-consumer-secret         "somekey"\
+                    --capsule-pulp-oauth-secret                   "somekey"\
+                    --capsule-puppet-ca-proxy			  false                             \
+                    --enable-foreman-proxy-plugin-remote-execution-ssh \
+                    --foreman-proxy-trusted-hosts                 "capsule3.some.domain"        \
+                    --capsule-certs-tar                           "~/capsule3.some.domain.tar"
+
+
+root@sat6host# hammer capsule list
+[Foreman] Password for admin:
+---|---------------------------|----------------------------------------|--------------------------
+ID | NAME                      | URL                                    | FEATURES
+---|---------------------------|----------------------------------------|--------------------------
+1  | sat6host.srv.volvo.com  | https://segotl2596.srv.volvo.com:9090  | Pulp, Puppet, Puppet C...
+2  | capsule1.some.domain  | https://segotl2597.srv.volvo.com:9090  | Templates, Pulp Node, ...
+3  | capsule2.some.domain  | https://segotl2827.got.volvo.net:9090  | Templates, Pulp, TFTP,...
+5  | capsule3.some.domain  | https://capsule3.some.domain:9090  | Templates, Pulp Node, ...
+---|---------------------------|----------------------------------------|--------------------------
+root@sat6host# hammer capsule info --id 5
+[Foreman] Password for admin:
+Id:         5
+Name:       capsule3.some.domain
+URL:        https://capsule3.some.domain:9090
+Features:
+    Templates
+    Pulp Node
+    Puppet
+    Dynflow
+    SSH
+Created at: 2018/06/04 13:37:50
+Updated at: 2018/06/04 18:31:44
+
+root@sat6host# hammer capsule content available-lifecycle-environments --id 5
+[Foreman] Password for admin:
+---|-----------------------|-------------
+ID | NAME                  | ORGANIZATION
+---|-----------------------|-------------
+6  | lce-lcs_qa_rhel6      | ORG
+2  | lce-lcs_dev_rhel7     | ORG
+9  | lce-puppet_qa         | ORG
+15 | lce-lcs_monthly_rhel6 | ORG
+1  | Library               | ORG
+10 | lce-puppet_prod       | ORG
+7  | lce-lcs_prod_rhel6    | ORG
+12 | lce-cloudforms_rhel7  | ORG
+4  | lce-lcs_prod_rhel7    | ORG
+5  | lce-lcs_dev_rhel6     | ORG
+14 | lce-lcs_6month_rhel7  | ORG
+16 | lce-lcs_6month_rhel6  | ORG
+8  | lce-puppet_dev        | ORG
+13 | lce-lcs_monthly_rhel7 | ORG
+3  | lce-lcs_qa_rhel7      | ORG
+11 | lce-upstream_rhel7    | ORG
+---|-----------------------|-------------
+root@sat6host#
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 1
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 2
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 3
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 4
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 5
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 6
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 7
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 8
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 9
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 10
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 11
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 13
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 14
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 15
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host# hammer capsule content add-lifecycle-environment --id 5 --environment-id 16
+[Foreman] Password for admin:
+Lifecycle environment successfully added to the capsule
+root@sat6host#
+
+
+GUI
+Infrastructure -> Capsules -> capsule3.some.domain
+Edit -> Location: Global
+	Organisations: ORG
+
+
+root@capsule3# yum install git
+root@capsule3# git clone https://git.some.domain/repo/puppet-infra.git
+root@capsule3# cd puppet-infra/sat6/bin
+root@capsule3# ./sat6_hiera_eyaml.bash --scenario capsule
+Cloning into 'puppet-infra'...
+remote: Counting objects: 633, done.
+remote: Compressing objects: 100% (623/623), done.
+remote: Total 633 (delta 312), reused 0 (delta 0)
+Receiving objects: 100% (633/633), 4.81 MiB | 0 bytes/s, done.
+Resolving deltas: 100% (312/312), done.
+==> /usr/lib/puppet_sync already exists, script proceeds
+==> scenario satellite OR! /etc/vit/puppet_sync.conf already exists, script proceeds
+Fetching origin
+HEAD is now at 69bd602 Run v2_28_57 in prod , add ubuntu support for docker
+INFO: Checking out hieradata
+Fetching origin
+remote: Counting objects: 60, done.
+remote: Compressing objects: 100% (51/51), done.
+remote: Total 52 (delta 31), reused 0 (delta 0)
+Unpacking objects: 100% (52/52), done.
+From git.some.domain:hieradata-prod
+   a7d08bd..75d3261  master     -> origin/master
+HEAD is now at 75d3261  as these servers are cluster
+INFO: Checked out hiera - return 0
+sending incremental file list
+hosts/
+
+
+sent 79372 bytes  received 2356 bytes  32691.20 bytes/sec
+total size is 259194  speedup is 3.17
+cat: /etc/cron.d/puppet_sync: No such file or directory
+==> pupsys user already exists, script proceeds
+==> scenario satellite OR! pupsys entry already in access.conf, script proceeds
+==> /home/pupsys/.ssh directory already exists, script proceeds
+==> /usr/libexec/VerifyMoveGUMfiles.ksh already exists, script proceeds
+
+==> ruby already installed, script proceeds
+Successfully installed trollop-2.1.2
+Parsing documentation for trollop-2.1.2
+Installing ri documentation for trollop-2.1.2
+1 gem installed
+Successfully installed hiera-eyaml-2.1.0
+Parsing documentation for hiera-eyaml-2.1.0
+Installing ri documentation for hiera-eyaml-2.1.0
+1 gem installed
+Cloning into 'secrets-prod'...
+remote: Counting objects: 8, done.
+remote: Compressing objects: 100% (5/5), done.
+remote: Total 8 (delta 0), reused 0 (delta 0)
+Receiving objects: 100% (8/8), 2.59 KiB | 0 bytes/s, done.
+

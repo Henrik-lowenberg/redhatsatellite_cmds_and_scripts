@@ -1,0 +1,2 @@
+curl -k -H "Content-Type: application/json" -X POST -d  '{"description":"Testing incrementel update", "add_content":{"puppet_module_ids":["ae9a384e-e17b-458b-ac54-9868eee69d7a"]}, "propagate_all_composites":true, "content_view_version_environments":[{"environment_ids":["2","3","4"],"content_view_version_id":70}]}' -u 'admin:password' https://satellite.example.com/katello/api/content_view_versions/incremental_update
+

@@ -1,0 +1,42 @@
+--------------- pulp-admin configuration --------------- 
+
+yum install pulp-admin-client pulp-rpm-admin-extensions pulp-rpm-handlers pulp-puppet-admin-extensions
+sed -i "26s/# host:/host: $(hostname -f)/" /etc/pulp/admin/admin.conf
+ls ~/.pulp || mkdir ~/.pulp
+scp sat6host:~/.pulp/user-cert.pem capsule:~/.pulp/user-cert.pem
+
+
+----------------------------------------------------------------------
+
+pulp-admin puppet repo modules --repo-id ORG-prd-lcs_dev-lcs_dev_modules > /tmp/sat6host.modules.out
+
+pulp-admin repo list
+
+
+
+
+
+--------------- old workaround --------------- 
+
+#set hostname temporarily to fqdn
+hostnamectl set-hostname sat6host.example.com
+pulp-admin --username=admin --password=mFGzwdcBegVsuMP2ErUny8kktjTtEGDx repo list > pulp-admin.repolist
+
+
+pulp-admin --username=admin --password=<password> repo history sync --repo-id org-example-Red_Hat_Enterprise_Linux_Server-Red_Hat_Enterprise_Linux_7_Server_RPMs_x86_64_7Server
+Repo Id:       org-example-Red_Hat_Enterprise_Linux_Server-Red_Hat_Enterprise_Li
+               nux_7_Server_RPMs_x86_64_7Server
+Result:        success
+Started:       2015-08-17T22:18:00Z
+Completed:     2015-08-17T22:22:01Z
+Added Count:   99
+Removed Count: 0
+Updated Count: 8016
+
+
+
+# set it back to shortname
+hostnamectl set-hostname sat6host
+
+
+/etc/pulp/admin/admin.conf

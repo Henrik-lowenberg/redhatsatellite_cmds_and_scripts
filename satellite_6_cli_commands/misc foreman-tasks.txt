@@ -1,0 +1,105 @@
+
+hammer -c /etc/vit/hammer.yml task list --search 'action label ~ Capsule and result = warning' --page 1
+
+--------------------------------------
+
+To export all tasks (this may take some time):
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH=''
+
+Export the tasks that did not complete (or are running):
+foreman-rake foreman_tasks:export_tasks
+
+Export tasks from last several days:
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH='' TASK_DAYS=1
+
+
+foreman-rake foreman_tasks:export_tasks TASK_SEARCH='action label ~ CapsuleGenerateAndSync and result = pending'
+--------------------------------------
+
+Changing specific task to stopped with id:
+
+foreman-rake console
+ForemanTasks::Task.where(:id => "6ea749a9-5455-427d-a211-e6b4b28aaafc").map { |task| task.update_column(:state, "stopped") }
+
+--------------------------------------
+
+Stopping paused sync tasks
+
+systemctl stop foreman-tasks
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::System::GenerateApplicability", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+# systemctl start foreman-tasks
+
+--------------------------------------
+
+#Stop running task of repository sync
+
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::Sync", :state => "running").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::Sync", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+--------------------------------------
+
+Stop contentview publish
+
+service foreman-tasks stop
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::ContentView::Publish", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+  
+systemctl start foreman-tasks  
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done
+
+------------------------------
+Stop old capsule sync tasks that prevents the capsules from appearing as synced
+
+service foreman-tasks stop
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "running").map { |task| task.update_column(:state, "stopped") }
+
+systemctl start foreman-tasks 
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done
+
+
+------------------------------
+Stop all running pending tasks:
+
+systemctl stop foreman-tasks
+foreman-rake console
+
+ForemanTasks::Task.where(:state => "running", :result => "pending").map { |task| task.update_column(:state, "stopped") }
+
+systemctl start foreman-tasks 
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl stop $i; done
+for i in pulp_resource_manager pulp_workers pulp_celerybeat qdrouterd ; do systemctl start $i; done
+
+------------------------------
+
+
+To clean all the tasks older than 30 days with verbosity and non-execution the below command can be used:
+
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label ~ *' AFTER='90d' VERBOSE=true NOOP=true
+# [noop] deleting all tasks matching filter label ~ * AND started_at < "2016-10-08 16:56:17" AND state = stopped
+# [noop] 14515 tasks would be deleted
+
+BE AWARE THAT THIS DELETES THE TASKS FROM THE DATABASE
+foreman-rake foreman_tasks:cleanup TASK_SEARCH='label ~ *' AFTER='90d' VERBOSE=true 
+
+------------------------------
+
+
+
+qpid-stat --ssl-certificate=/etc/pki/katello/qpid_client_striped.crt -b "amqps://localhost:5671" -q | grep resource
+
+First numerical column (be aware, it can be 3rd or 4th, due to some "Y"s) must contain only zeros. Otherwise, some task is still pending.
+
+

@@ -1,0 +1,4 @@
+hammer -c /etc/vit/hammer.yml hostgroup list
+
+
+hammer -u sat6user -p changeme hostgroup list

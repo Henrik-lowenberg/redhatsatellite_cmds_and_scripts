@@ -1,0 +1,49 @@
+
+
+# satellite slowness and cleanup of stuck tasks...
+# Check tasks are paused
+
+su - postgres -c "psql -d foreman -c 'select label,count(label),state from foreman_tasks_tasks where state <> '\''stopped'\'' group by label,state;'"
+                        label                         | count |   state
+------------------------------------------------------+-------+-----------
+ Actions::Candlepin::ListenOnCandlepinEvents          |     1 | paused
+ Actions::Katello::ContentView::Promote               |     2 | paused
+ Actions::Katello::ContentView::Publish               |     1 | paused
+ Actions::Katello::Repository::CapsuleGenerateAndSync |     2 | planning
+ Actions::Insights::EmailPoller                       |     1 | scheduled
+ Actions::Katello::Host::UploadPackageProfile         |     3 | paused
+ Actions::Katello::Host::UploadPackageProfile         |     1 | running
+ Actions::Katello::Host::Update                       |     5 | paused
+ Actions::Katello::Host::GenerateApplicability        |     3 | paused
+ Actions::Katello::EventQueue::Monitor                |     1 | running
+ Actions::Katello::Repository::CapsuleGenerateAndSync |     4 | paused
+ Actions::Katello::Repository::Sync                   |     9 | paused
+(12 rows)
+
+
+
+# Then do some task cleanup as example following...
+
+service foreman-tasks stop
+
+foreman-rake console
+
+ForemanTasks::Task.where(:label => "Actions::Katello::ContentView::Promote", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::ContentView::Publish", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "planning").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Host::UploadPackageProfile", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Host::UploadPackageProfile", :state => "running").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Host::Update", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Host::GenerateApplicability ", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+ForemanTasks::Task.where(:label => "Actions::Katello::Repository::CapsuleGenerateAndSync", :state => "paused").map { |task| task.update_column(:state, "stopped") }
+
+# Exit from the console.
+
+service foreman-tasks start

@@ -1,0 +1,10 @@
+curl -o host1.some.domain.iso -sS -k -u sat6user:changeme -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://sat6host.some.domain/bootdisk/api/hosts/host1.some.domain
+
+curl -o hclqal90632.some.domain.iso -sS -k -u sat6user:'changeme' -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://sat6host.some.domain/bootdisk/api/hosts/host1.some.domain
+# ll host1.some.domain.iso
+
+USER=sat6user
+PASS=changeme
+HOSTNAME=host2.some.domain
+
+curl -o ${HOSTNAME}.iso -sS -k -u ${USER}:${PASS} -H "Accept: version=2,application/json" -H "Content-Type: application/json" https://${SATELLITE_SERVER}/bootdisk/api/hosts/${HOSTNAME}

@@ -1,0 +1,52 @@
+
+# Apply errata to single host:
+hammer host errata apply \
+--host client.example.com \
+--errata-ids RHSA-2016:0008
+
+-----------------------------------------------------------
+hammer --output table|base|yaml|csv|json|silent
+-----------------------------------------------------------
+
+
+
+
+# list errata for a particular content-view:
+hammer erratum list --content-view "CV_NAME"
+
+hammer erratum list --search 14287 --content-view cv-rhel7
+
+# Get more information about the errata:
+hammer -c /etc/vit/hammer.yml erratum info --id '2c801aeb-60b8-4df9-ab59-27e3d1457843'
+hammer -c /etc/vit/hammer.yml erratum info --id RHBA-2017:2939
+
+# Incremental errata update of content view that propagates to CCV: (cvvid can be seen with info on the CV, envid=LifeCycleEnv
+# NOTE! Last ContentViewID is only applicable for ccv-lcs_monthly_rhel6 & ccv-lcs_monthly_rhel7
+# NOTE! For ccv-lcs_6month_rhel6 & ccv-lcs_6month_rhel7 you need to choose the version published @ the 6 months break point January/July
+hammer content-view version incremental-update --propagate-all-composites=true --content-view-version-id=XXX --errata-ids='2c801aeb-60b8-4df9-ab59-27e3d1457843' --environment--ids=13
+
+
+# Example:
+hammer content-view version incremental-update --propagate-all-composites=true --content-view-version-id=x --errata-ids=332520ff-2ba6-4503-83e6-eb5df4255f25 --environment--ids=13
+
+hammer lifecycle-environment list --organization="HCL_shared"
+---|-----------------------|--------
+ID | NAME                  | PRIOR
+---|-----------------------|--------
+1  | Library               |
+11 | lce-upstream_rhel7    | Library
+9  | lce-puppet_qa         | Library
+10 | lce-puppet_prod       | Library
+8  | lce-puppet_dev        | Library
+3  | lce-lcs_qa_rhel7      | Library
+6  | lce-lcs_qa_rhel6      | Library
+4  | lce-lcs_prod_rhel7    | Library
+7  | lce-lcs_prod_rhel6    | Library
+13 | lce-lcs_monthly_rhel7 | Library
+15 | lce-lcs_monthly_rhel6 | Library
+2  | lce-lcs_dev_rhel7     | Library
+5  | lce-lcs_dev_rhel6     | Library
+14 | lce-lcs_6month_rhel7  | Library
+16 | lce-lcs_6month_rhel6  | Library
+12 | lce-cloudforms_rhel7  | Library
+---|-----------------------|--------

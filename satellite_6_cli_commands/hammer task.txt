@@ -1,0 +1,7 @@
+hammer -c /etc/vit/hammer.yml task list --search "state=paused"
+
+hammer -c /etc/vit/hammer.yml task progress --id  947de82a-5cc7-4fec-af6a-8e8175135d8d
+[Foreman] Password for admin:
+[..................................................................................................................................................................................................] [100%]
+449 task(s), 424 success, 25 fail
+Error: A sub task failed

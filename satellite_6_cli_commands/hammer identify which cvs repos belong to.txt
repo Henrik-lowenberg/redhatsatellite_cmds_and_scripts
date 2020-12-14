@@ -1,0 +1,30 @@
+
+
+
+hammer -c /etc/vit/hammer.yml repository list --organization-id=1 |grep -i openshift
+
+3633 | Red Hat OpenShift Container Platform 3.9 RPMs x86_64                             | Red Hat OpenShift Container Platform                       | yum          |                                        https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/ose/3.9/os
+3556 | Red Hat OpenShift Container Platform 3.7 RPMs x86_64                             | Red Hat OpenShift Container Platform                       | yum          |                                        https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/ose/3.7/os
+1245 | Red Hat OpenShift Container Platform 3.6 RPMs x86_64                             | Red Hat OpenShift Container Platform                       | yum          |                                        https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/ose/3.6/os
+214  | Red Hat OpenShift Container Platform 3.4 RPMs x86_64                             | Red Hat OpenShift Container Platform                       | yum          |                                        https://cdn.redhat.com/content/dist/rhel/server/7/7Server/x86_64/ose/3.4/os
+
+make a note of repo id
+look for repo id among content views:
+
+hammer -c /etc/vit/hammer.yml content-view list --organization-id=1 |egrep "214|1245"
+3               | cv-lcs_qa_rhel7           | cv-lcs_qa_rhel7           |           | 1, 2, 4, 5, 6, 7, 8, 9, 13, 14, 19, 23, 214, 622, 760, 828, 1096
+4               | cv-lcs_prod_rhel7         | cv-lcs_prod_rhel7         |           | 1, 2, 4, 5, 6, 7, 8, 9, 13, 14, 21, 23, 214, 286, 622, 760, 828, 1096
+2               | cv-lcs_dev_rhel7          | cv-lcs_dev_rhel7          |           | 1, 2, 4, 5, 6, 7, 8, 9, 13, 14, 16, 23, 214, 622, 760, 828, 1096
+
+Now you know which contentviews the repo exist in.
+
+
+
+
+If you want to remove it:
+
+Make sure the repos are removed from any Content Views
+Try to disable the repo via WebUI: Content -> Red Hat Repository. If the relevant checkbox is grayed, the repo is still contained in some Content View. See steps in below subsection how to identify what C.V. contains the repo.
+Remove the fetched packages from the disabled repository by running the katello cron job /etc/cron.weekly/katello-remove-orphans:
+
+https://access.redhat.com/solutions/1289893

@@ -1,0 +1,97 @@
+hammer -c /etc/vit/hammer.yml subnet list
+hammer -c /etc/vit/hammer.yml domain list
+
+
+@test "create a product" {
+  hammer product create --organization="${ORGANIZATION}" --name="${PRODUCT}" | grep -q "Product created"
+}
+
+@test "create package repository" {
+  hammer repository create --organization="${ORGANIZATION}" \
+    --product="${PRODUCT}" --content-type="yum" --name "${YUM_REPOSITORY}" \
+    --url https://jlsherrill.fedorapeople.org/fake-repos/needed-errata/ | grep -q "Repository created"
+}
+
+@test "upload package" {
+  wget https://repos.fedorapeople.org/repos/pulp/pulp/demo_repos/test_errata_install/animaniacs-0.1-1.noarch.rpm -P /tmp
+  hammer repository upload-content --organization="${ORGANIZATION}"\
+    --product="${PRODUCT}" --name="${YUM_REPOSITORY}" --path="/tmp/animaniacs-0.1-1.noarch.rpm" | grep -q "Successfully uploaded"
+}
+
+@test "sync repository" {
+  hammer repository synchronize --organization="${ORGANIZATION}" \
+    --product="${PRODUCT}" --name="${YUM_REPOSITORY}"
+}
+
+@test "create puppet repository" {
+  hammer repository create --organization="${ORGANIZATION}" \
+    --product="${PRODUCT}" --content-type="puppet" --name "${PUPPET_REPOSITORY}" | grep -q "Repository created"
+}
+
+@test "upload puppet module" {
+  curl -o /tmp/stbenjam-dummy-0.2.0.tar.gz https://forgeapi.puppetlabs.com/v3/files/stbenjam-dummy-0.2.0.tar.gz
+  tFileExists /tmp/stbenjam-dummy-0.2.0.tar.gz && hammer repository upload-content \
+    --organization="${ORGANIZATION}" --product="${PRODUCT}" --name="${PUPPET_REPOSITORY}" \
+    --path="/tmp/stbenjam-dummy-0.2.0.tar.gz" | grep -q "Successfully uploaded"
+}
+
+@test "create lifecycle environment" {
+  hammer lifecycle-environment create --organization="${ORGANIZATION}" \
+    --prior="Library" --name="${LIFECYCLE_ENVIRONMENT}" | grep -q "Environment created"
+}
+
+@test "create content view" {
+  hammer content-view create --organization="${ORGANIZATION}" \
+    --name="${CONTENT_VIEW}" | grep -q "Content view created"
+}
+
+@test "add repo to content view" {
+  repo_id=$(hammer repository list --organization="${ORGANIZATION}" \
+    | grep ${YUM_REPOSITORY} | cut -d\| -f1 | egrep -i '[0-9]+')
+  hammer content-view add-repository --organization="${ORGANIZATION}" \
+    --name="${CONTENT_VIEW}" --repository-id=$repo_id | grep -q "The repository has been associated"
+}
+
+@test "publish content view" {
+  hammer content-view publish --organization="${ORGANIZATION}" \
+    --name="${CONTENT_VIEW}"
+}
+
+@test "promote content view" {
+  hammer content-view version promote  --organization="${ORGANIZATION}" \
+    --content-view="${CONTENT_VIEW}" --to-lifecycle-environment="${LIFECYCLE_ENVIRONMENT}" --from-lifecycle-environment="Library"
+}
+
+@test "create activation key" {
+  hammer activation-key create --organization="${ORGANIZATION}" \
+    --name="${ACTIVATION_KEY}" --content-view="${CONTENT_VIEW}" --lifecycle-environment="${LIFECYCLE_ENVIRONMENT}" \
+    --unlimited-hosts | grep -q "Activation key created"
+}
+
+@test "disable auto-attach" {
+  hammer activation-key update --organization="${ORGANIZATION}" \
+    --name="${ACTIVATION_KEY}" --auto-attach=false
+}
+
+
+@test "install errata remotely (katello-agent)" {
+  # see http://projects.theforeman.org/issues/15089 for bug related to "|| true"
+  timeout 300 hammer host errata apply --errata-ids 'RHEA-2012:0055' --host $(hostname -f) || true
+  tPackageExists walrus-5.21
+}
+
+
+@test "publish content view" {
+  hammer content-view publish --organization="${ORGANIZATION}" \
+    --name="${CONTENT_VIEW}"
+}
+
+@test "promote content view" {
+  hammer content-view version promote  --organization="${ORGANIZATION}" \
+    --content-view="${CONTENT_VIEW}" --to-lifecycle-environment="${LIFECYCLE_ENVIRONMENT}" --from-lifecycle-environment="Library"
+}
+
+@test "check web app is still up" {
+  curl -sk "https://localhost$URL_PREFIX/users/login" | grep -q login-form
+}
+

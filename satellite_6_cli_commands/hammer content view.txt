@@ -1,0 +1,63 @@
+-----------------------------------------------------------
+hammer --output table|base|yaml|csv|json|silent
+-----------------------------------------------------------
+
+hammer --output base -c /etc/vit/hammer.yml content-view list --organization="ORG"
+
+
+# List content views, get ID:
+hammer --csv content-view list --organization="ORG"
+
+# list info for that content view via ID, note Versions/ID NUMBER for Version:
+hammer content-view info --id 14
+
+------------------------------------------
+# Add repo to content view
+hammer content-view add-repository --organization "$ORG" \
+--name 'RHEL7_Base' \
+--product 'Red Hat Enterprise Linux Server' \
+--repository 'Red Hat Enterprise Linux 7 Server Kickstart x86_64 7.2'
+
+-------------------------------------------------------------
+# Publish your Content View (makes new version available).
+-------------------------------------------------------------
+
+hammer content-view publish --organization "$ORG" \
+--name RHEL7_Base \
+--description 'Initial Publishing' --name 
+
+hammer content-view publish --organization="ORG" --name cv-rhel7 --description "$(date +"%Y-%m-%d") monthly update"
+
+
+1 0 1 * * root 
+-------------------------------------------------------------
+# incremental update of content-view (publish and promote)?
+-------------------------------------------------------------
+
+hammer content-view version incremental-update --package-ids 2bc3e146-754d-41cf-a560-4d18c21a2e37 --environment-ids=1,2,3 --id=23
+
+# the following will incrementally update the component view version (13) and propagate the update to the any composite views utilizing it:
+hammer content-view version incremental-update --organization-id 1 --content-view-version-id 13  --errata-ids RHEA-2012:0002 --propagate-all-composites true
+
+-------------------------------------------------------------
+# Promote your Content View (makes it the one that is used).
+-------------------------------------------------------------
+
+
+hammer content-view version promote \
+--organization "$ORG" \
+--content-view RHEL7_Base \
+--to-lifecycle-environment Development
+
+hammer content-view version promote --organization="ORG" --content-view cv-rhel7 --content-view-id=XX --to-lifecycle-environment lce-lcs_6month_rhel7 --async
+
+
+hammer content-view version promote --organization="ORG" --content-view cv-rhel7 --lifecycle-environment=5 --id=3 --async
+
+
+
+-------------------------------------------
+CONTENT VIEW ID | NAME
+13              | cv-rhel7                                     
+27              | cv-rhel6
+

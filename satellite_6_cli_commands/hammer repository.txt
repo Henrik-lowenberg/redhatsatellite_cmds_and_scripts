@@ -1,0 +1,9 @@
+
+
+hammer -c /etc/vit/hammer.yml repository list --organization-id 1 --by id
+
+
+
+
+
+hammer -c /etc/vit/hammer.yml repository synchronize --validate-contents --id 666

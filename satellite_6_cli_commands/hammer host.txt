@@ -1,0 +1,29 @@
+
+hammer host list
+
+hammer host info --name client.example.com
+
+
+hammer host errata apply \
+--host client.example.com \
+--errata-ids RHSA-2016:0008
+
+
+hammer subscription list --host-id 708
+
+
+hammer host list --search lcs_devm6_rhel7/got
+
+sudo hammer --csv -c /etc/vit/hammer.yml host list --search "domain = "example.com"
+
+hammer --csv -c /etc/vit/hammer.yml host list --search "hostgroup=openshift"|awk -F, '{print $2}'
+
+hammer host errata list --host client.example.com
+
+
+# List all servers which hasn´t reported to the satellite for over 4 months:
+hammer -c /etc/vit/hammer.yml host list --search 'last_report < "4 month ago" and status.enabled = true'
+
+
+# List Host Parameters (configgroup parameters)
+hammer -c /etc/vit/hammer.yml host info --name  client.example.com|grep -A 10 "^Parameters"|sed 's/>//; 1d'
